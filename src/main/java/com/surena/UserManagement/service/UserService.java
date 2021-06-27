@@ -3,7 +3,7 @@ package com.surena.UserManagement.service;
 import com.surena.UserManagement.dto.UserDto;
 import com.surena.UserManagement.entity.User;
 import com.surena.UserManagement.exceptions.DuplicateUsernameException;
-import com.surena.UserManagement.exceptions.UsernameDoesNotExist;
+import com.surena.UserManagement.exceptions.UsernameOrPasswordDoesNotExist;
 import com.surena.UserManagement.repository.UserRepository;
 import com.surena.UserManagement.util.MD5Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +65,7 @@ public class UserService {
             User user = userRepository.save(byUsernameAndPassword);
             return user;
         } else {
-            throw new UsernameDoesNotExist("Username or password is incorrect");
+            throw new UsernameOrPasswordDoesNotExist("Username or password is incorrect");
         }
     }
 

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class RestResponseUsernameDoesNotExist extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = UsernameDoesNotExist.class)
+    @ExceptionHandler(value = UsernameOrPasswordDoesNotExist.class)
     public ResponseEntity<CustomErrorResponse> customHandleNotFound(Exception ex, WebRequest request) {
         CustomErrorResponse errors = new CustomErrorResponse();
         errors.setTimestamp(LocalDateTime.now());

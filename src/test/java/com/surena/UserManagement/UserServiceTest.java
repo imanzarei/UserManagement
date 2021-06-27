@@ -2,13 +2,17 @@ package com.surena.UserManagement;
 
 import com.surena.UserManagement.dto.UserDto;
 import com.surena.UserManagement.entity.User;
+import com.surena.UserManagement.exceptions.DuplicateUsernameException;
+import com.surena.UserManagement.exceptions.UsernameOrPasswordDoesNotExist;
 import com.surena.UserManagement.repository.UserRepository;
 import com.surena.UserManagement.service.UserService;
 import com.surena.UserManagement.util.MD5Utils;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.jupiter.api.Order;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.ArgumentMatchers;
@@ -22,10 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(SpringRunner.class)
@@ -39,12 +45,17 @@ public class UserServiceTest {
     @Mock
     UserRepository userRepository;
 
+
     User user;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
 
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
+
         user = new User();
         user.setId(1L);
         user.setPassword("12345");
@@ -66,6 +77,29 @@ public class UserServiceTest {
         User created = userService.saveUser(user);
         assertEquals(created.getFirstName(), user.getFirstName());
         verify(userRepository).save(user);
+    }
+
+    @Test
+    public void usernameOrPasswordIsIncorrect() {
+        thrown.expect(UsernameOrPasswordDoesNotExist.class);
+        thrown.expectMessage(is("Username or password is incorrect"));
+
+        UserDto userDto = new UserDto();
+        userDto.setUsername("test1");
+        userDto.setFirstName("test1");
+        userDto.setLastName("test1");
+        userDto.setPassword("test1");
+        userService.changePassword(userDto);
+
+    }
+
+    @Test
+    public void DuplicateUsernameTest() {
+        thrown.expect(DuplicateUsernameException.class);
+        thrown.expectMessage(is("Username is Duplicate"));
+
+        when(userRepository.findByUsername(any())).thenReturn(user);
+        userService.saveUser(user);
     }
 
     @Test
